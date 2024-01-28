@@ -39,7 +39,6 @@ for item in responses:
 
 
 app = FastAPI()
-
 @app.get("/titles")
 def titles():
   return result
