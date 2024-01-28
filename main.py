@@ -5,6 +5,9 @@ from datetime import timedelta
 from fastapi import FastAPI
 from xml.etree import cElementTree as ET
 import requests
+from transformers import pipeline
+
+sentiment_pipeline = pipeline("sentiment-analysis")
 
 #API requests
 url = 'https://newsapi.org/v2/everything?'
@@ -30,17 +33,31 @@ if response.status_code == 200:
 else:
   print(f"Failed to retrieve data. Status code: {response.status_code}")
 
-
-result = {}
+titles = []
 for item in responses:
   if type(item) == dict:
-    result[str(item['title'])] =  str(item['description'])
+    titles.append(item['title'])
 
 
+x = sentiment_pipeline(titles)
+# print(x)
+pos = 0
+neg = 0
+for e in x:
+  if e['label'] == 'POSITIVE':
+    pos+=1
+  else:
+    neg+=1
+
+print(pos,neg)
 
 app = FastAPI()
 @app.get("/titles")
 def titles():
+  result = {
+    'positive': pos,
+    'negitive': neg
+  }
   return result
 
 
